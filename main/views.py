@@ -34,7 +34,7 @@ def create_product(request):
             product = form.save(commit=False)
             product.user = request.user
             form.save()
-            return HttpResponseRedirect(reverse('main:Home'))
+            return HttpResponseRedirect(reverse('main:show_main'))
     else:
         form = ProductForm()
     return render(request, 'create_product.html', {'form': form})
@@ -75,7 +75,7 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            response = HttpResponseRedirect(reverse("main:Home")) 
+            response = HttpResponseRedirect(reverse("main:show_main")) 
             response.set_cookie('last_login', str(datetime.datetime.now()))
             return response
         else:
@@ -88,3 +88,31 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return redirect('main:login')
+
+@login_required(login_url='/login')
+def edit_product(request, id):
+    # Get product berdasarkan ID
+    product = Product.objects.get(pk = id, user=request.user)
+    if (not product):
+        return HttpResponseRedirect(reverse('main:show_main'))
+    # Set product sebagai instance dari form
+    form = ProductForm(request.POST or None, instance=product)
+
+    if form.is_valid() and request.method == "POST":
+        # Simpan form dan kembali ke halaman awal
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_product.html", context)
+
+@login_required(login_url='/login')
+def delete_product(request, id):
+    # Get data berdasarkan ID
+    product = Product.objects.get(pk = id, user=request.user)
+    if (not product):
+        return HttpResponseRedirect(reverse('main:show_main'))
+    # Hapus data
+    product.delete()
+    # Kembali ke halaman awal
+    return HttpResponseRedirect(reverse('main:show_main'))
