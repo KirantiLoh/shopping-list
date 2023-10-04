@@ -14,5 +14,8 @@ urlpatterns = [
 
     path('register', views.register, name='register'), 
     path('login', views.login_user, name='login'),
-    path('logout', views.logout_user, name='logout')
+    path('logout', views.logout_user, name='logout'),
+
+    path('get-product/', views.get_products, name='get_products'),
+    path('create-product-ajax/', views.create_product, name='add_product_ajax'),
 ]
